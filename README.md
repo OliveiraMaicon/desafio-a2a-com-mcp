@@ -94,12 +94,18 @@ prontidão por HTTP e encerra apenas os PIDs que ele próprio iniciou. O autotes
 cobre duas execuções consecutivas independentes, falha de startup, timeout e
 encerramento seletivo.
 
+Rode o `pytest` com as portas **7300** e **7301** livres. O teste
+`test_entrypoint_default_port_and_foreign_cwd` valida justamente a porta padrão
+7301 e, por segurança, recusa iniciar o worker se já houver um listener ativo.
+Se os dois processos do desafio estiverem no ar, pare-os antes de executar a
+suíte.
+
 ## Onde a ponte acontece
 
 O ponto de pausa está em `agente/a2a_app.py`, em `ReservasExecutor._pausar`:
 quando `agente/mcp_host.py` devolve um `Pendente` (o `InputRequiredResult` cru do
 MCP), o executor guarda a continuação privada em
-`agente/continuacoes.py:Continuacoes.guardar`, associada ao `taskId`, e chama
+`agente/continuations.py:Continuacoes.guardar`, associada ao `taskId`, e chama
 `TaskUpdater.requires_input` com a linha exata
 `alternativas: <ids na ordem do enum>`. A Task passa a
 `TASK_STATE_INPUT_REQUIRED`; nenhum callback de elicitation é executado.
@@ -138,7 +144,7 @@ servidor precisam ser preservadas.
 ### Estado das Tasks e do agente
 
 As Tasks públicas ficam no `InMemoryTaskStore` do SDK A2A. As continuações
-privadas ficam em `agente/continuacoes.py:Continuacoes`, em memória, indexadas
+privadas ficam em `agente/continuations.py:Continuacoes`, em memória, indexadas
 por `taskId`, com trava por Task. Uma entrada é removida na conclusão, recusa,
 falha ou substituição por nova pausa da mesma Task; encerrar uma Task não afeta
 as demais. Tasks e continuações são perdidas ao reiniciar o agente — apenas o
