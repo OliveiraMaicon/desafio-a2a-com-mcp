@@ -14,9 +14,9 @@ Ver `proposal.md` e `specs/room-reservation-mrtr/spec.md`. Pré-requisito: `impl
 
 ### MRTR nativo, não pergunta síncrona
 
-Usar o suporte de resolver/input_required do SDK no modo moderno, não chamada de elicitation por back-channel. O conflito calcula alternativas, produz um único schema plano e termina a chamada HTTP. A chave da pergunta pertence ao SDK/servidor, não a uma constante esperada pelo cliente.
+Retornar `InputRequiredResult` explicitamente na camada de tratamento MCP, sem chamada de elicitation por back-channel. O `RequestStateBoundary` nativo do SDK envolve essa camada: sela a resposta e verifica o retry antes de qualquer efeito colateral. A integração preserva o catálogo e os resultados completos existentes. O conflito calcula alternativas, produz um único schema plano e termina a chamada HTTP. A chave da pergunta pertence ao servidor, não a uma constante esperada pelo cliente; ela e as alternativas são incluídas no estado selado e validadas no retry.
 
-O token deve proteger argumentos originais, contexto da pergunta, alternativas e vínculos da operação necessários ao resolver. Confirmar esses vínculos na versão fixada, usando testes de argumentos e tool incompatível; tipos ou documentação de outra versão não são evidência suficiente.
+O token deve proteger argumentos originais, contexto da pergunta, alternativas e vínculos da operação necessários à continuação. Confirmar esses vínculos na versão fixada, usando testes de argumentos e tool incompatível; tipos ou documentação de outra versão não são evidência suficiente. O retorno explícito evita o resolver automático, que nesta versão não oferece a integração necessária para o conflito dinâmico.
 
 ### Segredo estável, sem implementação criptográfica própria
 
